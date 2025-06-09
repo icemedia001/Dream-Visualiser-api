@@ -1,7 +1,27 @@
-fastapi>=0.68.0,<0.69.0
-uvicorn>=0.15.0,<0.16.0
-sqlalchemy>=1.4.0,<1.5.0
-pydantic>=1.8.0,<2.0.0
-python-jose[cryptography]>=3.3.0,<3.4.0
-passlib[bcrypt]>=1.7.4,<1.8.0
-python-multipart>=0.0.5,<0.0.6 
+# Core web framework
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.11.5
+pydantic-settings==2.9.1
+
+# Database
+sqlalchemy==2.0.25
+
+# Authentication & Security
+passlib==1.7.4
+python-jose==3.3.0
+python-multipart==0.0.6
+bcrypt==4.3.0
+
+# AI/ML Dependencies
+torch==2.2.2
+torchvision==0.17.2
+diffusers==0.33.1
+accelerate==1.7.0
+
+# Image/Video Processing
+Pillow==10.0.1
+opencv-python==4.11.0.86
+
+# Additional utilities
+aiofiles==24.1.0
