@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { apiService } from '../services/api';
 
-interface DreamFormProps {
-  onDreamGenerated: (imageUrl: string, prompt: string) => void;
+interface GeneratedImage {
+  id: number;
+  prompt: string;
+  image_url: string;
+  created_at: string;
 }
 
-export default function DreamForm({ onDreamGenerated }: DreamFormProps) {
+interface DreamFormProps {
+  onDreamGenerated: (image: GeneratedImage) => void;
+  token: string | null;
+}
+
+export default function DreamForm({ onDreamGenerated, token }: DreamFormProps) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +35,14 @@ export default function DreamForm({ onDreamGenerated }: DreamFormProps) {
     setError(null);
 
     try {
-      const response = await apiService.generateDream({ prompt: prompt.trim() });
-      onDreamGenerated(response.image_url, prompt);
+      console.log('🚀 Submitting dream prompt:', prompt.trim());
+      const response = await apiService.generateDream({ prompt: prompt.trim() }, token);
+      console.log('🎉 Dream generation successful:', response);
+      console.log('📍 Image URL received:', response.image_url);
+      onDreamGenerated(response);
       setPrompt('');
     } catch (err) {
+      console.error('💥 Dream generation failed:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate dream');
     } finally {
       setIsLoading(false);
@@ -38,10 +50,10 @@ export default function DreamForm({ onDreamGenerated }: DreamFormProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="relative">
-          <label htmlFor="dream-prompt" className="block text-lg font-medium text-white mb-3">
+    <div className="form-container">
+      <form onSubmit={handleSubmit} className="dream-form">
+        <div className="form-field">
+          <label htmlFor="dream-prompt" className="form-label">
             Describe your dream...
           </label>
           <textarea
@@ -49,19 +61,19 @@ export default function DreamForm({ onDreamGenerated }: DreamFormProps) {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="A mystical forest with glowing mushrooms, where butterflies made of starlight dance between ancient trees under a purple moon..."
-            className="input-primary w-full h-32 resize-none"
+            className="input-primary dream-textarea"
             disabled={isLoading}
             maxLength={500}
           />
-          <div className={`absolute bottom-3 right-3 text-sm ${
-            prompt.length > 450 ? 'text-yellow-400' : 'text-gray-400'
+          <div className={`character-count ${
+            prompt.length > 450 ? 'character-count-warning' : ''
           }`}>
             {prompt.length}/500
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-200">
+          <div className="error-message">
             {error}
           </div>
         )}
@@ -69,12 +81,12 @@ export default function DreamForm({ onDreamGenerated }: DreamFormProps) {
         <button
           type="submit"
           disabled={isLoading || !prompt.trim() || prompt.length > 500}
-          className={`btn-primary w-full text-lg py-4 ${
-            isLoading ? 'opacity-75 cursor-not-allowed' : ''
+          className={`btn-primary submit-button ${
+            isLoading ? 'loading' : ''
           }`}
         >
           {isLoading ? (
-            <div className="flex items-center justify-center space-x-3">
+            <div className="loading-content">
               <div className="loading-spinner"></div>
               <span>Visualizing your dream...</span>
             </div>
